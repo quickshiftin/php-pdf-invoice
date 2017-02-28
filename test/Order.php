@@ -1,12 +1,13 @@
 <?php
-namespace Quickshiftin\Pdf\Invoice\Spec;
+namespace Quickshiftin\Pdf\Invoice;
 
-use Quickshiftin\Pdf\Invoice\Spec\OrderItem;
+use Quickshiftin\Pdf\Invoice\Spec\Order as OrderSpec;
 
-interface Order
+class TestOrder implements OrderSpec
 {
-    public function addOrderItem(OrderItem $oOrderItem);
-    public function addOrderItems(array $aOrderItems);
+    // todo add private properties
+
+    // todo add setters
 
     public function getPriceBeforeShippingNoTax();
     public function getCustomerShipCharge();

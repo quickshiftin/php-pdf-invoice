@@ -15,7 +15,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "Quickshiftin\\Pdf\\Invoice": ""
+            "Quickshiftin\\Pdf\\Invoice": ["src", "test"]
         }   
     },
 }

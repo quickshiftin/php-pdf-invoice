@@ -1,5 +1,5 @@
 <?php
-namespace Quickshiftin\Pdf;
+namespace Quickshiftin\Pdf\Invoice;
 
 // TODO Gut this file. All we need is enough to run the Pdf generator...
 

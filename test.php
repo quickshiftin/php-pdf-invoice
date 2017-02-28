@@ -1,5 +1,5 @@
 <?php
-$oInvoicePdf = new Softwear\ECommerce\Pdf\PackingSlip();
+$oInvoicePdf = new Quickshiftin\Pdf\Invoice\Invoice();
 
 // Configure fonts
 $oInvoicePdf->setRegularFontPath('./assets/Arial.ttf');
