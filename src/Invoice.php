@@ -77,10 +77,14 @@ class Invoice
 
     protected $_oStringHelper;
 
+    public $_FillColor;
+    public $_LineColor;
+
     private
-        $_oSwOrder,
+        $_oOrder,
         $_sLogoPath,
         $_aFontPaths = [];
+
 
     public function __construct()
     {
@@ -91,6 +95,16 @@ class Invoice
     public function setBoldFontPath($sPath)    { $this->_setFontPath('bold', $sPath); }
     public function setItalicFontPath($sPath)  { $this->_setFontPath('italic', $sPath); }
 
+    public function setFillColorValue($value)
+    {
+        $this->_FillColor =  $value;
+    }
+
+    public function setLineColorValue($value)
+    {
+        $this->_LineColor = $value;
+    }
+
     private function _setFontPath($sType, $sPath)
     {
         $this->_aFontPaths[$sType] = $sPath;
@@ -99,6 +113,16 @@ class Invoice
     public function setLogoPath($sLogoPath)
     {
         $this->_sLogoPath = $sLogoPath;
+    }
+
+    public function getFillColorValue()
+    {
+        return $this->_FillColor;
+    }
+
+    public function getLineColorValue()
+    {
+        return $this->_LineColor;
     }
 
     /**
@@ -256,13 +280,13 @@ class Invoice
     private function _buildTotalsArray()
     {
         return [
-            $this->_buildTotalsArrayPair('Subtotal', $this->_oSwOrder->getPriceBeforeShippingNoTax()),
-            $this->_buildTotalsArrayPair('Shipping & Handling', $this->_oSwOrder->getCustomerShipCharge()),
+            $this->_buildTotalsArrayPair('Subtotal', $this->_oOrder->getPriceBeforeShippingNoTax()),
+            $this->_buildTotalsArrayPair('Shipping & Handling', $this->_oOrder->getCustomerShipCharge()),
             $this->_buildTotalsArrayPair(
                 'Grand Total (Excl. Tax)',
-                $this->_oSwOrder->getPriceBeforeShippingNotax() + $this->_oSwOrder->getCustomerShipCharge()),
-            $this->_buildTotalsArrayPair('Tax', $this->_oSwOrder->getSalesTaxAmount()),
-            $this->_buildTotalsArrayPair('Grand Total (Incl. Tax)', $this->_oSwOrder->getTotalCost())
+                $this->_oOrder->getPriceBeforeShippingNotax() + $this->_oOrder->getCustomerShipCharge()),
+            $this->_buildTotalsArrayPair('Tax', $this->_oOrder->getSalesTaxAmount()),
+            $this->_buildTotalsArrayPair('Grand Total (Incl. Tax)', $this->_oOrder->getTotalCost())
         ];
     }
 
@@ -272,7 +296,7 @@ class Invoice
      * @param  Zend_Pdf_Page $page
      * @return Zend_Pdf_Page
      */
-    private function insertTotals(\Zend_Pdf_Page $oPage, \SwOrder $oOrder)
+    private function insertTotals(\Zend_Pdf_Page $oPage, \Quickshiftin\Pdf\Invoice\Spec\Order $oOrder)
     {
         $lineBlock = [
             'lines'  => $this->_buildTotalsArray(),
@@ -298,16 +322,20 @@ class Invoice
         $this->y = $this->y ? $this->y : 815;
         $top = $this->y;
 
-        $oPage->setFillColor(new \Zend_Pdf_Color_GrayScale(0.45));
-        $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.45));
+//        $oPage->setFillColor(new \Zend_Pdf_Color_GrayScale(0.45));
+        $oPage->setFillColor($this->getFillColorValue());
+
+//        $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.45));
+            $oPage->setLineColor($this->getLineColorValue());
         $oPage->drawRectangle(25, $top, 570, $top - 40);
-        $oPage->setFillColor(new \Zend_Pdf_Color_GrayScale(1));
+//        $oPage->setFillColor(new \Zend_Pdf_Color_GrayScale(1));
+        $oPage->setFillColor($this->getFillColorValue());
         $this->_setFontRegular($oPage, 10);
         
-        $oPage->drawText('Order # ' . $this->_oSwOrder->getClientAppOrderId(), 35, ($top -= 15), 'UTF-8');
+        $oPage->drawText('Order # ' . $this->_oOrder->getClientAppOrderId(), 35, ($top -= 15), 'UTF-8');
 
         $oPage->drawText(
-            'Order Date: ' . $this->_oSwOrder->getSaleDate('M jS Y g:i a'), 
+            'Order Date: ' . $this->_oOrder->getSaleDate('M jS Y g:i a'), 
             35, ($top -= 15), 'UTF-8'
         );
 
@@ -321,16 +349,16 @@ class Invoice
         /* Calculate blocks info */
 
         /* Billing Address */
-        $billingAddress = $this->_oSwOrder->getFullBillingAddress();
+        $billingAddress = $this->_oOrder->getFullBillingAddress();
 
         /* Payment */
         // Just show the payment method's title on the PDF, that should be plenty...
-        $payment = [$this->_oSwOrder->getPaymentMethod()];
+        $payment = [$this->_oOrder->getPaymentMethod()];
 
         /* Shipping Address and Method */
         /* Shipping Address */
-        $shippingAddress = $this->_oSwOrder->getFullShippingAddress();
-        $shippingMethod  = $this->_oSwOrder->getShipEcomHandle();
+        $shippingAddress = $this->_oOrder->getFullShippingAddress();
+        $shippingMethod  = $this->_oOrder->getShipEcomHandle();
 
         $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(0));
         $this->_setFontBold($oPage, 12);
@@ -427,7 +455,7 @@ class Invoice
         $yShipments = $this->y;
         $totalShippingChargesText =
             "(" . 'Total Shipping Charges' . " " .
-            $this->_renderPrice($this->_oSwOrder->getCustomerShipCharge()) . ")";
+            $this->_renderPrice($this->_oOrder->getCustomerShipCharge()) . ")";
 
         $oPage->drawText($totalShippingChargesText, 285, $yShipments - $topMargin, 'UTF-8');
         $yShipments -= $topMargin + 10;
@@ -523,9 +551,9 @@ class Invoice
      * @param  $invoice TODO What type is this ????
      * @return Zend_Pdf
      */
-    public function getPdf(\SwOrder $oOrder)
+    public function getPdf(\Quickshiftin\Pdf\Invoice\Spec\Order $oOrder)
     {
-        $this->_oSwOrder = $oOrder;
+        $this->_oOrder = $oOrder;
         $oStyle          = new \Zend_Pdf_Style();
 
         $this->_pdf = new \Zend_Pdf();
@@ -544,7 +572,7 @@ class Invoice
         $this->_drawHeader($oPage);
 
         /* Add body */
-        foreach($oOrder->getSwOrderItems() as $oOrderItem) {
+        foreach($oOrder->getOrderItems() as $oOrderItem) {
             /* Draw item */
             $oPage = $this->_drawLineItem($oPage, $oOrderItem);
 //            $oPage = end($this->_pdf->pages);
@@ -580,26 +608,26 @@ class Invoice
     /**
      * Draw item line
      */
-    private function _drawLineItem(\Zend_Pdf_Page $oPage, \SwOrderItem $oSwOrderItem)
+    private function _drawLineItem(\Zend_Pdf_Page $oPage, \Quickshiftin\Pdf\Invoice\Spec\OrderItem $oOrderItem)
     {
         $lines  = [];
 
         // draw Product name
         $lines[0] = [[
-            'text' => $this->_oStringHelper->str_split($oSwOrderItem->getName(), 35, true, true),
+            'text' => $this->_oStringHelper->str_split($oOrderItem->getName(), 35, true, true),
             'feed' => 35,
         ]];
 
         // draw SKU
         $lines[0][] = [
-            'text'  => $this->_oStringHelper->str_split($oSwOrderItem->getSwSku(), 17),
+            'text'  => $this->_oStringHelper->str_split($oOrderItem->getSwSku(), 17),
             'feed'  => 290,
             'align' => 'right'
         ];
 
         // draw QTY
         $lines[0][] = [
-            'text'  => $oSwOrderItem->getQuantity() * 1,
+            'text'  => $oOrderItem->getQuantity() * 1,
             'feed'  => 435,
             'align' => 'right'
         ];
@@ -614,7 +642,7 @@ class Invoice
 
         // draw Price
         $lines[$i][] = [
-            'text'  => $this->_renderPrice($oSwOrderItem->getPricePerUnit()),
+            'text'  => $this->_renderPrice($oOrderItem->getPricePerUnit()),
             'feed'  => $feedPrice,
             'font'  => 'regular',
             'align' => 'right'
@@ -622,7 +650,7 @@ class Invoice
 
         // draw Subtotal
         $lines[$i][] = [
-            'text'  => $this->_renderPrice($oSwOrderItem->getPrice(true)),
+            'text'  => $this->_renderPrice($oOrderItem->getPrice(true)),
             'feed'  => $feedSubtotal,
             'font'  => 'regular',
             'align' => 'right'
@@ -630,7 +658,7 @@ class Invoice
 
         // draw Tax
         $lines[0][] = [
-            'text'  => $this->_renderPrice($oSwOrderItem->getSalesTaxAmount()),
+            'text'  => $this->_renderPrice($oOrderItem->getSalesTaxAmount()),
             'feed'  => 495,
             'font'  => 'regular',
             'align' => 'right'

@@ -1,16 +1,13 @@
 <?php
 namespace Quickshiftin\Pdf\Invoice\Spec;
 
-use Quickshiftin\Pdf\Invoice\Spec\OrderItem;
+use Quickshiftin\Pdf\Invoice\TestOrderItem;
 
 interface Order
 {
-    public function addOrderItem(OrderItem $oOrderItem);
+    public function addOrderItem(TestOrderItem $oOrderItem);
     public function addOrderItems(array $aOrderItems);
-
     public function getPriceBeforeShippingNoTax();
-    public function getCustomerShipCharge();
-    public function getPriceBeforeShippingNotax();
     public function getCustomerShipCharge();
     public function getSalesTaxAmount();
     public function getTotalCost();
@@ -18,6 +15,7 @@ interface Order
     public function getPaymentMethod();
     public function getFullShippingAddress();
     public function getShipEcomHandle();
-    public function getCustomerShipCharge();
     public function getOrderItems();
+    public function getClientAppOrderId();
+    public function getSaleDate();
 }
