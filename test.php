@@ -8,8 +8,12 @@ $oInvoicePdf = new Quickshiftin\Pdf\Invoice\Invoice();
 $oInvoicePdf->setRegularFontPath('./assets/Arial.ttf');
 $oInvoicePdf->setBoldFontPath('./assets/Arial Bold.ttf');
 $oInvoicePdf->setItalicFontPath('./assets/Arial Italic.ttf');
-$oInvoicePdf->setFillColorValue( new \Zend_Pdf_Color_Html('gray'));
-$oInvoicePdf->setLineColorValue( new \Zend_Pdf_Color_Html('black'));
+
+// Set Color
+$oInvoicePdf->setTitleBgFillColor(new \Zend_Pdf_Color_Html('gold'));
+$oInvoicePdf->setTitleFontColor(new \Zend_Pdf_Color_Html('gray'));
+$oInvoicePdf->setBodyBgFillColor(new \Zend_Pdf_Color_Html('turquoise'));
+$oInvoicePdf->setBodyFontColor(new \Zend_Pdf_Color_Html('black'));
 
 // Configure logo
 $oInvoicePdf->setLogoPath('./assets/fake-log.jpg');
@@ -39,7 +43,7 @@ $oOrder->setFullShippingAddress('557 Alton Way Unit B');
 $oOrder->setPaymentMethod('Credit Card');
 $oOrder->setPriceBeforeShippingNoTax(50);
 $oOrder->setSalesTaxAmount(5);
-$oOrder->setShipEcomHandle(0);
+$oOrder->setShipEcomHandle('UPS');
 $oOrder->setTotalCost(60);
 $oOrder->addOrderItem($oOrderItem1);
 $oOrder->addOrderItem($oOrderItem2);

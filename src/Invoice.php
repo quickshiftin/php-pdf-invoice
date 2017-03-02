@@ -77,12 +77,14 @@ class Invoice
 
     protected $_oStringHelper;
 
-    public $_FillColor;
-    public $_LineColor;
 
     private
         $_oOrder,
         $_sLogoPath,
+        $_TitleBgFillColor,
+        $_BodyBgFillColor,
+        $_BodyFontColor,
+        $_TitleFontColor,
         $_aFontPaths = [];
 
 
@@ -95,14 +97,24 @@ class Invoice
     public function setBoldFontPath($sPath)    { $this->_setFontPath('bold', $sPath); }
     public function setItalicFontPath($sPath)  { $this->_setFontPath('italic', $sPath); }
 
-    public function setFillColorValue($value)
+    public function setTitleBgFillColor(\Zend_Pdf_Color $value)
     {
-        $this->_FillColor =  $value;
+        $this->_TitleBgFillColor =  $value;
     }
 
-    public function setLineColorValue($value)
+    public function setBodyBgFillColor(\Zend_Pdf_Color $value)
     {
-        $this->_LineColor = $value;
+        $this->_BodyBgFillColor = $value;
+    }
+
+    public function setBodyFontColor(\Zend_Pdf_Color $value)
+    {
+        $this->_BodyFontColor = $value;
+    }
+
+    public function setTitleFontColor($value)
+    {
+        $this->_TitleFontColor = $value;
     }
 
     private function _setFontPath($sType, $sPath)
@@ -115,14 +127,45 @@ class Invoice
         $this->_sLogoPath = $sLogoPath;
     }
 
-    public function getFillColorValue()
+    public function getTitleBgFillColor()
     {
-        return $this->_FillColor;
+        if(!is_null($this->_TitleBgFillColor)) {
+            return $this->_TitleBgFillColor;
+        }
+        else{
+            return new Zend_Pdf_Color_GrayScale(0.4);
+        }
+
     }
 
-    public function getLineColorValue()
+    public function getBodyBgFillColor()
     {
-        return $this->_LineColor;
+        if(!is_null($this->_BodyBgFillColor)) {
+            return $this->_BodyBgFillColor;
+        }
+        else{
+            return new Zend_Pdf_Color_GrayScale(0.8);
+        }
+    }
+
+    public function getBodyFontColor()
+    {
+        if(!is_null($this->_BodyFontColor)) {
+            return $this->_BodyFontColor;
+        }
+        else{
+            return new \Zend_Pdf_Color_Html('black');
+        }
+    }
+
+    public function getTitleFontColor()
+    {
+        if(!is_null($this->_TitleFontColor)) {
+            return $this->_TitleFontColor;
+        }
+        else{
+            return new \Zend_Pdf_Color_Html('white');
+        }
     }
 
     /**
@@ -322,14 +365,13 @@ class Invoice
         $this->y = $this->y ? $this->y : 815;
         $top = $this->y;
 
-//        $oPage->setFillColor(new \Zend_Pdf_Color_GrayScale(0.45));
-        $oPage->setFillColor($this->getFillColorValue());
-
-//        $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.45));
-            $oPage->setLineColor($this->getLineColorValue());
+        //Main Section Background Color
+        $oPage->setFillColor($this->getTitleBgFillColor());
+        $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.45));
         $oPage->drawRectangle(25, $top, 570, $top - 40);
-//        $oPage->setFillColor(new \Zend_Pdf_Color_GrayScale(1));
-        $oPage->setFillColor($this->getFillColorValue());
+
+        // Section Text Color
+        $oPage->setFillColor($this->getTitleFontColor());
         $this->_setFontRegular($oPage, 10);
         
         $oPage->drawText('Order # ' . $this->_oOrder->getClientAppOrderId(), 35, ($top -= 15), 'UTF-8');
@@ -340,7 +382,9 @@ class Invoice
         );
 
         $top -= 10;
-        $oPage->setFillColor(new \Zend_Pdf_Color_Rgb(0.93, 0.92, 0.92));
+
+        // Sold To and Ship To Background Color
+        $oPage->setFillColor($this->getBodyBgFillColor());
         $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.5));
         $oPage->setLineWidth(0.5);
         $oPage->drawRectangle(25, $top, 275, ($top - 25));
@@ -360,7 +404,8 @@ class Invoice
         $shippingAddress = $this->_oOrder->getFullShippingAddress();
         $shippingMethod  = $this->_oOrder->getShipEcomHandle();
 
-        $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(0));
+        //Shipping To and Sold To Text Color
+        $oPage->setFillColor($this->getBodyFontColor());
         $this->_setFontBold($oPage, 12);
         $oPage->drawText('Sold to:', 35, ($top - 15), 'UTF-8');
 
@@ -369,9 +414,13 @@ class Invoice
         $addressesHeight = $this->_calcAddressHeight($billingAddress);
         $addressesHeight = max($addressesHeight, $this->_calcAddressHeight($shippingAddress));
 
+        // Shipping and billing address contentBackground
         $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(1));
+
         $oPage->drawRectangle(25, ($top - 25), 570, $top - 33 - $addressesHeight);
-        $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(0));
+
+        // Shipping and Billing Address text
+        $oPage->setFillColor($this->getBodyFontColor());
         $this->_setFontRegular($oPage, 10);
         $this->y = $top - 40;
         $addressesStartY = $this->y;
@@ -411,22 +460,25 @@ class Invoice
         $addressesEndY = min($addressesEndY, $this->y);
         $this->y = $addressesEndY;
 
-        $oPage->setFillColor(new Zend_Pdf_Color_Rgb(0.93, 0.92, 0.92));
+        // Shipping Method Background Color
+        $oPage->setFillColor($this->getBodyBgFillColor());
         $oPage->setLineWidth(0.5);
         $oPage->drawRectangle(25, $this->y, 275, $this->y-25);
         $oPage->drawRectangle(275, $this->y, 570, $this->y-25);
 
+        // Shipping Method Text Color
         $this->y -= 15;
         $this->_setFontBold($oPage, 12);
-        $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(0));
+        $oPage->setFillColor($this->getBodyFontColor());
         $oPage->drawText('Payment Method', 35, $this->y, 'UTF-8');
         $oPage->drawText('Shipping Method:', 285, $this->y , 'UTF-8');
 
         $this->y -=10;
-        $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(1));
+        $oPage->setFillColor($this->getBodyBgFillColor());
 
+        // Credit Card and Shipping Method Text
         $this->_setFontRegular($oPage, 10);
-        $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(0));
+        $oPage->setFillColor($this->getBodyFontColor());
 
         $paymentLeft = 35;
         $yPayments   = $this->y - 15;
@@ -488,12 +540,16 @@ class Invoice
     {
         /* Add table head */
         $this->_setFontRegular($page, 10);
-        $page->setFillColor(new Zend_Pdf_Color_RGB(0.93, 0.92, 0.92));
+
+        // Products Attributes Section Background Color
+        $page->setFillColor($this->getBodyBgFillColor());
         $page->setLineColor(new Zend_Pdf_Color_GrayScale(0.5));
         $page->setLineWidth(0.5);
         $page->drawRectangle(25, $this->y, 570, $this->y -15);
         $this->y -= 10;
-        $page->setFillColor(new Zend_Pdf_Color_RGB(0, 0, 0));
+
+        //Attributes Text Color
+        $page->setFillColor($this->getBodyFontColor());
 
         //columns headers
         $lines[0][] = [
@@ -537,7 +593,8 @@ class Invoice
         ];
 
         $this->_drawLineBlocks($page, array($lineBlock), array('table_header' => true));
-        $page->setFillColor(new Zend_Pdf_Color_GrayScale(0));
+        // Order Items Text Color
+        $page->setFillColor($this->getBodyFontColor());
         $this->y -= 20;
     }
 
