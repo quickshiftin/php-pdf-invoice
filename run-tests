@@ -1,0 +1,2 @@
+#!/bin/bash
+./phpunit --bootstrap test/bootstrap.php test
