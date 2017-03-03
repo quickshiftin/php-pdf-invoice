@@ -43,50 +43,54 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
             ->getMockBuilder('Quickshiftin\\Pdf\\Invoice\\Spec\\Order')
             ->getMock();
 
-        $this->_setOrderExp('getClientAppOrderId', 1);
-        $this->_setOrderExp('getSaleDate', '01-03-2016');
-        $this->_setOrderExp('getCustomerShipCharge', 5, $this->any());
-        $this->_setOrderExp('getFullBillingAddress', '557 Alton Way Unit B');
-        $this->_setOrderExp('getFullShippingAddress', '557 Alton Way Unit B');
-        $this->_setOrderExp('getPaymentMethod', 'Credit Card');
-        $this->_setOrderExp('getPriceBeforeShippingNoTax', 50, $this->any());
-        $this->_setOrderExp('getSalesTaxAmount', 5);
-        $this->_setOrderExp('getShipEcomHandle', 'UPS');
-        $this->_setOrderExp('getTotalCost', 60);
+        $this->_setExp($this->_oOrderMock,'getClientAppOrderId', 1);
+        $this->_setExp($this->_oOrderMock,'getSaleDate', '01-03-2016');
+        $this->_setExp($this->_oOrderMock,'getCustomerShipCharge', 5, $this->any());
+        $this->_setExp($this->_oOrderMock,'getFullBillingAddress', '557 Alton Way Unit B');
+        $this->_setExp($this->_oOrderMock,'getFullShippingAddress', '557 Alton Way Unit B');
+        $this->_setExp($this->_oOrderMock,'getPaymentMethod', 'Credit Card');
+        $this->_setExp($this->_oOrderMock,'getPriceBeforeShippingNoTax', 50, $this->any());
+        $this->_setExp($this->_oOrderMock,'getSalesTaxAmount', 5);
+        $this->_setExp($this->_oOrderMock,'getShipEcomHandle', 'UPS');
+        $this->_setExp($this->_oOrderMock,'getTotalCost', 60);
 
-        $oOrderItem1 = new TestOrderItem();
-        $oOrderItem1->setName('Ali Tshirt');
-        $oOrderItem1->setSalesTaxAmount(0);
-        $oOrderItem1->setPrice(25);
-        $oOrderItem1->setPricePerUnit(25);
-        $oOrderItem1->setSwSku('001');
-        $oOrderItem1->setQuantity(1);
+        $oMockOrderItem1 = $this->_getOrderItemMock(
+            'Ali Tshirt', 0, 25, 25, '001', 1);
 
-        $oOrderItem2 = new TestOrderItem();
-        $oOrderItem2->setName('Prince Tshirt');
-        $oOrderItem2->setSalesTaxAmount(0);
-        $oOrderItem2->setPrice(25);
-        $oOrderItem2->setPricePerUnit(25);
-        $oOrderItem2->setSwSku('002');
-        $oOrderItem2->setQuantity(1);
-
+        $oMockOrderItem2 = $this->_getOrderItemMock(
+            'Prince Tshirt', 0, 30, 30, '002', 1);
         $this
             ->_oOrderMock
             ->expects($this->once())
             ->method('getOrderItems')
-            ->willReturn([$oOrderItem1, $oOrderItem2]);
+            ->willReturn([$oMockOrderItem1, $oMockOrderItem2]);
     }
 
-    private function _setOrderExp($sMethod, $mReturn, $count=null)
+    private function _setExp($oMock, $sMethod, $mReturn, $count=null)
     {
         if($count === null) {
             $count = $this->once();
         }
 
-        $this
-            ->_oOrderMock
+        $oMock
             ->expects($count)
             ->method($sMethod)
             ->willReturn($mReturn);
+    }
+
+    private function _getOrderItemMock($sName, $fSalesTax, $fPrice, $fPricePerUnit, $sSku, $iQuantity)
+    {
+        $oMockOrderItem = $this
+            ->getMockBuilder('Quickshiftin\\Pdf\\Invoice\\Spec\\OrderItem')
+            ->getMock();
+        $this->_setExp($oMockOrderItem, 'getName',$sName );
+        $this->_setExp($oMockOrderItem, 'getSalesTaxAmount', $fSalesTax);
+        $this->_setExp($oMockOrderItem, 'getPrice', $fPrice);
+        $this->_setExp($oMockOrderItem, 'getPricePerUnit', $fPrice);
+        $this->_setExp($oMockOrderItem, 'getSwSku', $sSku);
+        $this->_setExp($oMockOrderItem, 'getQuantity', $iQuantity);
+
+        return $oMockOrderItem;
+
     }
 }

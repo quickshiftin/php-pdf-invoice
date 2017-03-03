@@ -1,11 +1,11 @@
 <?php
 namespace Quickshiftin\Pdf\Invoice\Spec;
 
-use Quickshiftin\Pdf\Invoice\TestOrderItem;
+use Quickshiftin\Pdf\Invoice\Spec\OrderItem;
 
 interface Order
 {
-    public function addOrderItem(TestOrderItem $oOrderItem);
+    public function addOrderItem(OrderItem $oOrderItem);
     public function addOrderItems(array $aOrderItems);
     public function getPriceBeforeShippingNoTax();
     public function getCustomerShipCharge();
