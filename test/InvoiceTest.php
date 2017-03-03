@@ -4,16 +4,18 @@ namespace Quickshiftin\Pdf\Invoice;
 class InvoiceTest extends \PHPUnit_Framework_TestCase
 {
     private
-        $_oOrderMock;
+        $_oOrderMock,
+        $_oFactoryMock;
 
     public function setup()
     {
+        $this->_getFactoryMock();
         $this->_getOrderMock();
     }
 
     public function testSomething()
     {
-        $oInvoicePdf = new Invoice();
+        $oInvoicePdf = new Invoice($this->_oFactoryMock);
 
         // Configure fonts
         $oInvoicePdf->setRegularFontPath(__DIR__ . '/../assets/Arial.ttf');
@@ -92,5 +94,24 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
 
         return $oMockOrderItem;
 
+    }
+
+    private function _getFactoryMock()
+    {
+        $this->_oFactoryMock = $this
+            ->getMockBuilder('Quickshiftin\\Pdf\\Invoice\\Factory')
+            ->setMethods(['createPdf'])
+            ->getMock();
+
+        $oPdfMock = $this
+            ->getMockBuilder('Zend_Pdf')
+            ->setMethods(['fakMethod'])
+            ->getMock();
+
+        $this
+            ->_oFactoryMock
+            ->expects($this->once())
+            ->method('createPdf')
+            ->willReturn($oPdfMock);
     }
 }
