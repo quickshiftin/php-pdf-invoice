@@ -15,11 +15,15 @@
  */
 namespace Quickshiftin\Pdf\Invoice;
 
+use Quickshiftin\Pdf\Invoice\Spec\Order as OrderSpec;
+use Quickshiftin\Pdf\Invoice\Spec\OrderItem as OrderItemSpec;
+
 use Zend_Pdf;
 use Zend_Pdf_Font;
 use Zend_Pdf_Page;
 use Zend_Pdf_Color_GrayScale;
 use Zend_Pdf_Color_Rgb;
+use Zend_Pdf_Style;
 
 /**
  * PDF Invoice generator
@@ -85,12 +89,17 @@ class Invoice
         $_BodyBgFillColor,
         $_BodyFontColor,
         $_TitleFontColor,
-        $_aFontPaths = [];
+        $_aFontPaths = [],
+        $_oFactory;
 
-
-    public function __construct()
+    public function __construct(Factory $oFactory=null)
     {
-        $this->_oStringHelper = new StringHelper();
+        if(!$oFactory) {
+            $oFactory = new Factory();
+        }
+
+        $this->_oFactory      = $oFactory;
+        $this->_oStringHelper = $oFactory->createStringHelper();
     }
 
     public function setRegularFontPath($sPath) { $this->_setFontPath('regular', $sPath); }
@@ -133,7 +142,7 @@ class Invoice
             return $this->_TitleBgFillColor;
         }
         else{
-            return new Zend_Pdf_Color_GrayScale(0.4);
+            return $this->_oFactory->createColorGrayscale(0.4);
         }
 
     }
@@ -144,7 +153,7 @@ class Invoice
             return $this->_BodyBgFillColor;
         }
         else{
-            return new Zend_Pdf_Color_GrayScale(0.8);
+            return $this->_oFactory->createColorGrayscale(0.8);
         }
     }
 
@@ -154,7 +163,7 @@ class Invoice
             return $this->_BodyFontColor;
         }
         else{
-            return new \Zend_Pdf_Color_Html('black');
+            return $this->_oFactory->createColorHtml('black');
         }
     }
 
@@ -164,7 +173,7 @@ class Invoice
             return $this->_TitleFontColor;
         }
         else{
-            return new \Zend_Pdf_Color_Html('white');
+            return $this->_oFactory->createColorHtml('white');
         }
     }
 
@@ -339,7 +348,7 @@ class Invoice
      * @param  Zend_Pdf_Page $page
      * @return Zend_Pdf_Page
      */
-    private function insertTotals(\Zend_Pdf_Page $oPage, \Quickshiftin\Pdf\Invoice\Spec\Order $oOrder)
+    private function insertTotals(Zend_Pdf_Page $oPage, OrderSpec $oOrder)
     {
         $lineBlock = [
             'lines'  => $this->_buildTotalsArray(),
@@ -360,14 +369,14 @@ class Invoice
      * @param Mage_Sales_Model_Order $obj
      * @param bool $bPutOrderId
      */
-    private function insertOrder(\Zend_Pdf_Page $oPage)
+    private function insertOrder(Zend_Pdf_Page $oPage)
     {
         $this->y = $this->y ? $this->y : 815;
         $top = $this->y;
 
         //Main Section Background Color
         $oPage->setFillColor($this->getTitleBgFillColor());
-        $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.45));
+        $oPage->setLineColor($this->_oFactory->createColorGrayscale(0.45));
         $oPage->drawRectangle(25, $top, 570, $top - 40);
 
         // Section Text Color
@@ -385,7 +394,7 @@ class Invoice
 
         // Sold To and Ship To Background Color
         $oPage->setFillColor($this->getBodyBgFillColor());
-        $oPage->setLineColor(new \Zend_Pdf_Color_GrayScale(0.5));
+        $oPage->setLineColor($this->_oFactory->createColorGrayscale(0.5));
         $oPage->setLineWidth(0.5);
         $oPage->drawRectangle(25, $top, 275, ($top - 25));
         $oPage->drawRectangle(275, $top, 570, ($top - 25));
@@ -415,7 +424,7 @@ class Invoice
         $addressesHeight = max($addressesHeight, $this->_calcAddressHeight($shippingAddress));
 
         // Shipping and billing address contentBackground
-        $oPage->setFillColor(new Zend_Pdf_Color_GrayScale(1));
+        $oPage->setFillColor($this->_oFactory->createColorGrayscale(1));
 
         $oPage->drawRectangle(25, ($top - 25), 570, $top - 33 - $addressesHeight);
 
@@ -543,7 +552,7 @@ class Invoice
 
         // Products Attributes Section Background Color
         $page->setFillColor($this->getBodyBgFillColor());
-        $page->setLineColor(new Zend_Pdf_Color_GrayScale(0.5));
+        $page->setLineColor($this->_oFactory->createColorGrayscale(0.5));
         $page->setLineWidth(0.5);
         $page->drawRectangle(25, $this->y, 570, $this->y -15);
         $this->y -= 10;
@@ -608,29 +617,29 @@ class Invoice
      * @param  $invoice TODO What type is this ????
      * @return Zend_Pdf
      */
-    public function getPdf(\Quickshiftin\Pdf\Invoice\Spec\Order $oOrder)
+    public function getPdf(OrderSpec $oOrder)
     {
         $this->_oOrder = $oOrder;
-        $oStyle          = new \Zend_Pdf_Style();
+        $oStyle        = $this->_oFactory->createStyle();
 
-        $this->_pdf = new \Zend_Pdf();
+        $this->_pdf = $this->_oFactory->createPdf();
         $this->_setFontBold($oStyle, 10);
 
         $oPage = $this->newPage();
 
-        /* Add image */
+        // Add image
         // TODO Get the packing slip image off the ClientApp
         $this->insertLogo($oPage);
 
-        /* Add head */
+        // Add head
         $this->insertOrder($oPage);
 
-        /* Add table */
+        // Add table
         $this->_drawHeader($oPage);
 
-        /* Add body */
+        // Add body
         foreach($oOrder->getOrderItems() as $oOrderItem) {
-            /* Draw item */
+            // Draw item
             $oPage = $this->_drawLineItem($oPage, $oOrderItem);
 //            $oPage = end($this->_pdf->pages);
         }
@@ -665,7 +674,7 @@ class Invoice
     /**
      * Draw item line
      */
-    private function _drawLineItem(\Zend_Pdf_Page $oPage, \Quickshiftin\Pdf\Invoice\Spec\OrderItem $oOrderItem)
+    private function _drawLineItem(Zend_Pdf_Page $oPage, OrderItemSpec $oOrderItem)
     {
         $lines  = [];
 
@@ -738,7 +747,7 @@ class Invoice
      */
     protected function _setFontRegular($object, $size = 7)
     {
-        $font = Zend_Pdf_Font::fontWithPath($this->_aFontPaths['regular']);
+        $font = $this->_oFactory->createPdfFont($this->_aFontPaths['regular']);
         $object->setFont($font, $size);
         return $font;
     }
@@ -752,7 +761,7 @@ class Invoice
      */
     protected function _setFontBold($object, $size = 7)
     {
-        $font = Zend_Pdf_Font::fontWithPath($this->_aFontPaths['bold']);
+        $font = $this->_oFactory->createPdfFont($this->_aFontPaths['bold']);
         $object->setFont($font, $size);
         return $font;
     }
@@ -766,7 +775,7 @@ class Invoice
      */
     protected function _setFontItalic($object, $size = 7)
     {
-        $font = Zend_Pdf_Font::fontWithPath($this->_aFontPaths['italic']);
+        $font = $this->_oFactory->createPdfFont($this->_aFontPaths['italic']);
         $object->setFont($font, $size);
         return $font;
     }
@@ -835,7 +844,7 @@ class Invoice
                 foreach ($line as $column) {
                     $fontSize = empty($column['font_size']) ? 10 : $column['font_size'];
                     if (!empty($column['font_file'])) {
-                        $font = Zend_Pdf_Font::fontWithPath($column['font_file']);
+                        $font = $this->_oFactory->createPdfFont($column['font_file']);
                         $page->setFont($font, $fontSize);
                     } else {
                         $fontStyle = empty($column['font']) ? 'regular' : $column['font'];
