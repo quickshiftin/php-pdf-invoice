@@ -3,7 +3,8 @@
     "description": "Generate PDF files for your application's invoices with PHP",
     "type": "library",
     "require": {
-        "bombayworks/zendframework1": "1.*"
+        "bombayworks/zendframework1": "1.*",
+        "phpunit/phpunit": "4.8.35"
     },
     "license": "OSL 3.0",
     "authors": [
@@ -15,7 +16,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "Quickshiftin\\Pdf\\Invoice": ["src", "test"]
+            "Quickshiftin\\Pdf\\Invoice\\": ["src", "test"]
         }   
-    },
+    }
 }
