@@ -688,7 +688,7 @@ class Invoice
 
         // draw SKU
         $lines[0][] = [
-            'text'  => $this->_oStringHelper->str_split($oOrderItem->getSwSku(), 17),
+            'text'  => $this->_oStringHelper->str_split($oOrderItem->getSku(), 17),
             'feed'  => 290,
             'align' => 'right'
         ];

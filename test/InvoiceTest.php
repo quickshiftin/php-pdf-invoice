@@ -89,7 +89,7 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
         $this->_setExp($oMockOrderItem, 'getSalesTaxAmount', $fSalesTax);
         $this->_setExp($oMockOrderItem, 'getPrice', $fPrice);
         $this->_setExp($oMockOrderItem, 'getPricePerUnit', $fPrice);
-        $this->_setExp($oMockOrderItem, 'getSwSku', $sSku);
+        $this->_setExp($oMockOrderItem, 'getSku', $sSku);
         $this->_setExp($oMockOrderItem, 'getQuantity', $iQuantity);
 
         return $oMockOrderItem;

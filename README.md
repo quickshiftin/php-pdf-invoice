@@ -28,7 +28,7 @@ use Quickshiftin\Pdf\Invoice\Spec\OrderItem;
 class MyOrderItem interface OrderItem
 {
     public function getName();
-    public function getSwSku();
+    public function getSku();
     public function getQuantity();
     public function getPricePerUnit();
     public function getPrice();
