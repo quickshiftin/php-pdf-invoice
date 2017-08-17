@@ -1,5 +1,5 @@
 # PHP PDF Ivoice
-Create reciepts as PDF documents for your customers with PHP. This project uses a PDF generator extracted from Magento for general use via Composer.
+This project uses a PDF invoice generator extracted from Magento for general use via Composer. You can easily integrate your existing domain model and start generating PDF invoices.
 
 ![Example Invoice PDF](http://i289.photobucket.com/albums/ll238/quickshiftin/php-pdf-invoice-example_zpsbsjomzsr.png)
 
