@@ -45,7 +45,7 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
             ->getMockBuilder('Quickshiftin\\Pdf\\Invoice\\Spec\\Order')
             ->getMock();
 
-        $this->_setExp($this->_oOrderMock,'getClientAppOrderId', 1);
+        $this->_setExp($this->_oOrderMock,'getOrderId', 1);
         $this->_setExp($this->_oOrderMock,'getSaleDate', '01-03-2016');
         $this->_setExp($this->_oOrderMock,'getCustomerShipCharge', 5, $this->any());
         $this->_setExp($this->_oOrderMock,'getFullBillingAddress', '557 Alton Way Unit B');
@@ -53,7 +53,7 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
         $this->_setExp($this->_oOrderMock,'getPaymentMethod', 'Credit Card');
         $this->_setExp($this->_oOrderMock,'getPriceBeforeShippingNoTax', 50, $this->any());
         $this->_setExp($this->_oOrderMock,'getSalesTaxAmount', 5);
-        $this->_setExp($this->_oOrderMock,'getShipEcomHandle', 'UPS');
+        $this->_setExp($this->_oOrderMock,'getShippingMethodName', 'UPS');
         $this->_setExp($this->_oOrderMock,'getTotalCost', 60);
 
         $oMockOrderItem1 = $this->_getOrderItemMock(

@@ -383,7 +383,7 @@ class Invoice
         $oPage->setFillColor($this->getTitleFontColor());
         $this->_setFontRegular($oPage, 10);
         
-        $oPage->drawText('Order # ' . $this->_oOrder->getClientAppOrderId(), 35, ($top -= 15), 'UTF-8');
+        $oPage->drawText('Order # ' . $this->_oOrder->getOrderId(), 35, ($top -= 15), 'UTF-8');
 
         $oPage->drawText(
             'Order Date: ' . $this->_oOrder->getSaleDate('M jS Y g:i a'), 
@@ -411,7 +411,7 @@ class Invoice
         /* Shipping Address and Method */
         /* Shipping Address */
         $shippingAddress = $this->_oOrder->getFullShippingAddress();
-        $shippingMethod  = $this->_oOrder->getShipEcomHandle();
+        $shippingMethod  = $this->_oOrder->getShippingMethodName();
 
         //Shipping To and Sold To Text Color
         $oPage->setFillColor($this->getBodyFontColor());

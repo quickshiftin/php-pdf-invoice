@@ -42,8 +42,6 @@ use Quickshiftin\Pdf\Invoice\Spec\OrderItem;
 // Implement the order methods below
 interface Order
 {
-    public function addOrderItem(OrderItem $oOrderItem);
-    public function addOrderItems(array $aOrderItems);
     public function getPriceBeforeShippingNoTax();
     public function getCustomerShipCharge();
     public function getSalesTaxAmount();
@@ -51,9 +49,9 @@ interface Order
     public function getFullBillingAddress();
     public function getPaymentMethod();
     public function getFullShippingAddress();
-    public function getShipEcomHandle();
-    public function getOrderItems();
-    public function getClientAppOrderId();
+    public function getShippingMethodName();
+    public function getOrderItems();          // Should return an array or MyOrderItem (or whatever your class is that implements Quickshiftin\Pdf\Invoice\Spec\OrderItem
+    public function getOrderId();
     public function getSaleDate();
 }
 ```
