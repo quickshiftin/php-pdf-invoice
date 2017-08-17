@@ -641,6 +641,8 @@ class Invoice
         foreach($oOrder->getOrderItems() as $oOrderItem) {
             // Draw item
             $oPage = $this->_drawLineItem($oPage, $oOrderItem);
+
+// XXX What is this about?
 //            $oPage = end($this->_pdf->pages);
         }
 

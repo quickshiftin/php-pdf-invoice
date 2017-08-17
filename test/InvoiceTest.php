@@ -29,7 +29,7 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
         $oInvoicePdf->setBodyFontColor(new \Zend_Pdf_Color_Html('black'));
 
         // Configure logo
-        $oInvoicePdf->setLogoPath(__DIR__ . '/../assets/fake-log.jpg');
+        $oInvoicePdf->setLogoPath(__DIR__ . '/../assets/fake-logo.jpg');
 
         // Build the PDF
         $oPdf = $oInvoicePdf->getPdf($this->_oOrderMock);
