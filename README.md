@@ -16,9 +16,6 @@ This project uses a PDF invoice generator extracted from Magento for general use
 ### Integration boilerplate - connecting your existing domain model to the generator
 To integrate your existing application's orders, simply provide two classes that `implement` `Quickshiftin\Pdf\Invoice\Spec\Order` and `Quickshiftin\Pdf\Invoice\Spec\OrderItem`
 
-### Implementation suggestion
-Since these are `interface`s, you can create a new class that wraps your existing OrderItem objects. If there are no name collisions you could also consider implementing directly on your existing OrderItem class.
-
 #### OrderItem interface
 ```php
 namespace MyApp;
@@ -139,6 +136,10 @@ class MyOrder implements Order
     public function getSaleDate();
 }
 ```
+
+### Implementation suggestion
+Since these are `interface`s, you can create a new class that wraps your existing OrderItem objects. If there are no name collisions you could also consider implementing directly on your existing OrderItem class.
+
 
 ### Building PDFs
 This system uses [`Zend_Pdf`](https://framework.zend.com/manual/1.10/en/zend.pdf.html) (from ZF1) under the hood. The package provides `Quickshiftin\Pdf\Invoice\Factory` which is a wrapper for instantiating classes from `Zend_Pdf`. You'll use these objects to customize the appearance of your PDFs.
