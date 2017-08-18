@@ -17,13 +17,13 @@ This project uses a PDF invoice generator extracted from Magento for general use
 ### Integration boilerplate - connecting your existing domain model to the generator
 To integrate your existing application's orders, simply provide two classes that `implement` `Quickshiftin\Pdf\Invoice\Spec\Order` and `Quickshiftin\Pdf\Invoice\Spec\OrderItem`
 
-#### OrderItem interface
+#### OrderItem interface implementation
 ```php
 namespace MyApp;
 use Quickshiftin\Pdf\Invoice\Spec\OrderItem;
 
 // Implement the Order Item methods below
-class MyOrderItem interface OrderItem
+class MyOrderItem interface implements OrderItem
 {
     /**
      * The name or description of the product
@@ -62,7 +62,7 @@ class MyOrderItem interface OrderItem
     public function getSalesTaxAmount();
 }
 ```
-#### Order interface
+#### Order interface implementation
 ```php
 use Quickshiftin\Pdf\Invoice\Spec\Order;
 
