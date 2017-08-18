@@ -88,6 +88,7 @@ class Invoice
         $_TitleBgFillColor,
         $_BodyBgFillColor,
         $_BodyFontColor,
+        $_BodyHeaderFontColor,
         $_TitleFontColor,
         $_aFontPaths = [],
         $_oFactory;
@@ -114,6 +115,16 @@ class Invoice
     public function setBodyBgFillColor(\Zend_Pdf_Color $value)
     {
         $this->_BodyBgFillColor = $value;
+    }
+
+    public function setBodyHeaderFontColor(\Zend_Pdf_Color $value)
+    {
+        $this->_BodyHeaderFontColor = $value;
+    }
+
+    public function getBodyHeaderFontColor()
+    {
+        return $this->_BodyHeaderFontColor;
     }
 
     public function setBodyFontColor(\Zend_Pdf_Color $value)
@@ -414,7 +425,7 @@ class Invoice
         $shippingMethod  = $this->_oOrder->getShippingMethodName();
 
         //Shipping To and Sold To Text Color
-        $oPage->setFillColor($this->getBodyFontColor());
+        $oPage->setFillColor($this->getBodyHeaderFontColor());
         $this->_setFontBold($oPage, 12);
         $oPage->drawText('Sold to:', 35, ($top - 15), 'UTF-8');
 
@@ -478,7 +489,7 @@ class Invoice
         // Shipping Method Text Color
         $this->y -= 15;
         $this->_setFontBold($oPage, 12);
-        $oPage->setFillColor($this->getBodyFontColor());
+        $oPage->setFillColor($this->getBodyHeaderFontColor());
         $oPage->drawText('Payment Method', 35, $this->y, 'UTF-8');
         $oPage->drawText('Shipping Method:', 285, $this->y , 'UTF-8');
 
@@ -487,7 +498,7 @@ class Invoice
 
         // Credit Card and Shipping Method Text
         $this->_setFontRegular($oPage, 10);
-        $oPage->setFillColor($this->getBodyFontColor());
+        $oPage->setFillColor($this->getBodyHeaderFontColor());
 
         $paymentLeft = 35;
         $yPayments   = $this->y - 15;
@@ -558,7 +569,7 @@ class Invoice
         $this->y -= 10;
 
         //Attributes Text Color
-        $page->setFillColor($this->getBodyFontColor());
+        $page->setFillColor($this->getBodyHeaderFontColor());
 
         //columns headers
         $lines[0][] = [
