@@ -151,9 +151,9 @@ use Quickshiftin\Pdf\Invoice as PdfInvoice;
 use Quickshiftin\Pdf\Invoice\Factory as InvoiceFactory;
 
 $oInvoiceFactory = new InvoiceFactory();
-$oInvoicePdf = new Invoice($this->_oFactoryMock);
+$oInvoicePdf     = new Invoice();
 
-// Configure fonts
+// Configure fonts - just put ttf font files somewhere your project can access them
 $oInvoicePdf->setRegularFontPath(__DIR__ . '/../assets/Arial.ttf');
 $oInvoicePdf->setBoldFontPath(__DIR__ . '/../assets/Arial Bold.ttf');
 $oInvoicePdf->setItalicFontPath(__DIR__ . '/../assets/Arial Italic.ttf');
