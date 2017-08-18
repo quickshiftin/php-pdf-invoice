@@ -159,13 +159,7 @@ $oInvoicePdf->setRegularFontPath(__DIR__ . '/../assets/Arial.ttf');
 $oInvoicePdf->setBoldFontPath(__DIR__ . '/../assets/Arial Bold.ttf');
 $oInvoicePdf->setItalicFontPath(__DIR__ . '/../assets/Arial Italic.ttf');
 
-// Set Color
-$oInvoicePdf->setTitleBgFillColor($oInvoiceFactory->createColorHtml('gold'));
-$oInvoicePdf->setTitleFontColor($oInvoiceFactory->createColorHtml('gray'));
-$oInvoicePdf->setBodyBgFillColor($oInvoiceFactory->createColorHtml('turquoise'));
-$oInvoicePdf->setBodyFontColor($oInvoiceFactory->createColorHtml('black'));
-
-// Set Color
+// Set Colors
 $red    = '#d53f27';
 $yellow = '#e8e653';
 
