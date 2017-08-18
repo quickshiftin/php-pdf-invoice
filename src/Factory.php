@@ -1,12 +1,12 @@
 <?php
 namespace Quickshiftin\Pdf\Invoice;
 
-use Zend_Pdf;
-use Zend_Pdf_Style;
-use Zend_Pdf_Font;
-use Zend_Pdf_Page;
-use Zend_Pdf_Color_GrayScale;
-use Zend_Pdf_Color_Rgb;
+use \Zend_Pdf;
+use \Zend_Pdf_Style;
+use \Zend_Pdf_Font;
+use \Zend_Pdf_Page;
+use \Zend_Pdf_Color_GrayScale;
+use \Zend_Pdf_Color_Rgb;
 
 class Factory
 {
