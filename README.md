@@ -165,6 +165,25 @@ $oInvoicePdf->setTitleFontColor($oInvoiceFactory->createColorHtml('gray'));
 $oInvoicePdf->setBodyBgFillColor($oInvoiceFactory->createColorHtml('turquoise'));
 $oInvoicePdf->setBodyFontColor($oInvoiceFactory->createColorHtml('black'));
 
+// Set Color
+$red    = '#d53f27';
+$yellow = '#e8e653';
+
+// Title section of invoice
+// Background color for title section of invoice, the default is white
+$oInvoicePdf->setTitleBgFillColor($oInvoiceFactory->createColorHtml($yellow));
+$oInvoicePdf->setTitleFontColor($oInvoiceFactory->createColorHtml('black'));
+
+// Header sections of invoice
+$oInvoicePdf->setHeaderBgFillColor($oInvoiceFactory->createColorHtml($red));
+$oInvoicePdf->setBodyHeaderFontColor($oInvoiceFactory->createColorHtml('white'));
+
+// Body section of invoice
+$oInvoicePdf->setBodyFontColor($oInvoiceFactory->createColorHtml('black'));
+
+// Line color of invoice
+$oInvoicePdf->setLineColor($oInvoiceFactory->createColorGrayscale(0));
+
 // Configure logo
 $oInvoicePdf->setLogoPath(__DIR__ . '/../assets/fake-logo.jpg');
 
