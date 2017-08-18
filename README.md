@@ -1,12 +1,13 @@
 # PHP PDF Invoice
-This project uses a PDF invoice generator extracted from Magento for general use via Composer. You can easily integrate your existing domain model and start generating PDF invoices that look like this
+This project uses a PDF invoice generator extracted from Magento for general use via Composer. You can easily integrate your existing domain model and start generating PDF invoices that look like this:
 
 ![Example Invoice PDF](http://i289.photobucket.com/albums/ll238/quickshiftin/php-pdf-invoice-example_zpswiumm9tg.png)
 
 ## Features
 * Generate PDF invoices with PHP
 * Composer integration
-* Change colors, fonts and provide custom logo of the PDF
+* Change colors, fonts, line color and provide custom logo of the PDF
+* Automatically create multiple pages based on size number of line items
 
 ## Install via Composer
 
