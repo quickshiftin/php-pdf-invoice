@@ -85,8 +85,9 @@ class Invoice
     private
         $_oOrder,
         $_sLogoPath,
+        $_LineColor,
         $_TitleBgFillColor,
-        $_BodyBgFillColor,
+        $_HeaderBgFillColor,
         $_BodyFontColor,
         $_BodyHeaderFontColor,
         $_TitleFontColor,
@@ -112,9 +113,9 @@ class Invoice
         $this->_TitleBgFillColor =  $value;
     }
 
-    public function setBodyBgFillColor(\Zend_Pdf_Color $value)
+    public function setHeaderBgFillColor(\Zend_Pdf_Color $value)
     {
-        $this->_BodyBgFillColor = $value;
+        $this->_HeaderBgFillColor = $value;
     }
 
     public function setBodyHeaderFontColor(\Zend_Pdf_Color $value)
@@ -122,9 +123,19 @@ class Invoice
         $this->_BodyHeaderFontColor = $value;
     }
 
+    public function setLineColor(\Zend_Pdf_Color $value)
+    {
+        $this->_LineColor = $value;
+    }
+
     public function getBodyHeaderFontColor()
     {
         return $this->_BodyHeaderFontColor;
+    }
+
+    public function getLineColor()
+    {
+        return $this->_LineColor;
     }
 
     public function setBodyFontColor(\Zend_Pdf_Color $value)
@@ -158,10 +169,10 @@ class Invoice
 
     }
 
-    public function getBodyBgFillColor()
+    public function getHeaderBgFillColor()
     {
-        if(!is_null($this->_BodyBgFillColor)) {
-            return $this->_BodyBgFillColor;
+        if(!is_null($this->_HeaderBgFillColor)) {
+            return $this->_HeaderBgFillColor;
         }
         else{
             return $this->_oFactory->createColorGrayscale(0.8);
@@ -387,7 +398,7 @@ class Invoice
 
         //Main Section Background Color
         $oPage->setFillColor($this->getTitleBgFillColor());
-        $oPage->setLineColor($this->_oFactory->createColorGrayscale(0.45));
+        $oPage->setLineColor($this->_LineColor);
         $oPage->drawRectangle(25, $top, 570, $top - 40);
 
         // Section Text Color
@@ -404,8 +415,8 @@ class Invoice
         $top -= 10;
 
         // Sold To and Ship To Background Color
-        $oPage->setFillColor($this->getBodyBgFillColor());
-        $oPage->setLineColor($this->_oFactory->createColorGrayscale(0.5));
+        $oPage->setFillColor($this->getHeaderBgFillColor());
+        $oPage->setLineColor($this->_LineColor);
         $oPage->setLineWidth(0.5);
         $oPage->drawRectangle(25, $top, 275, ($top - 25));
         $oPage->drawRectangle(275, $top, 570, ($top - 25));
@@ -427,9 +438,9 @@ class Invoice
         //Shipping To and Sold To Text Color
         $oPage->setFillColor($this->getBodyHeaderFontColor());
         $this->_setFontBold($oPage, 12);
-        $oPage->drawText('Sold to:', 35, ($top - 15), 'UTF-8');
+        $oPage->drawText('Sold to', 35, ($top - 15), 'UTF-8');
 
-        $oPage->drawText('Ship to:', 285, ($top - 15), 'UTF-8');
+        $oPage->drawText('Ship to', 285, ($top - 15), 'UTF-8');
 
         $addressesHeight = $this->_calcAddressHeight($billingAddress);
         $addressesHeight = max($addressesHeight, $this->_calcAddressHeight($shippingAddress));
@@ -481,7 +492,7 @@ class Invoice
         $this->y = $addressesEndY;
 
         // Shipping Method Background Color
-        $oPage->setFillColor($this->getBodyBgFillColor());
+        $oPage->setFillColor($this->getHeaderBgFillColor());
         $oPage->setLineWidth(0.5);
         $oPage->drawRectangle(25, $this->y, 275, $this->y-25);
         $oPage->drawRectangle(275, $this->y, 570, $this->y-25);
@@ -491,14 +502,14 @@ class Invoice
         $this->_setFontBold($oPage, 12);
         $oPage->setFillColor($this->getBodyHeaderFontColor());
         $oPage->drawText('Payment Method', 35, $this->y, 'UTF-8');
-        $oPage->drawText('Shipping Method:', 285, $this->y , 'UTF-8');
+        $oPage->drawText('Shipping Method', 285, $this->y , 'UTF-8');
 
         $this->y -=10;
-        $oPage->setFillColor($this->getBodyBgFillColor());
+        $oPage->setFillColor($this->getHeaderBgFillColor());
 
         // Credit Card and Shipping Method Text
         $this->_setFontRegular($oPage, 10);
-        $oPage->setFillColor($this->getBodyHeaderFontColor());
+        $oPage->setFillColor($this->getBodyFontColor());
 
         $paymentLeft = 35;
         $yPayments   = $this->y - 15;
@@ -562,8 +573,8 @@ class Invoice
         $this->_setFontRegular($page, 10);
 
         // Products Attributes Section Background Color
-        $page->setFillColor($this->getBodyBgFillColor());
-        $page->setLineColor($this->_oFactory->createColorGrayscale(0.5));
+        $page->setFillColor($this->getHeaderBgFillColor());
+        $page->setLineColor($this->_LineColor);
         $page->setLineWidth(0.5);
         $page->drawRectangle(25, $this->y, 570, $this->y -15);
         $this->y -= 10;

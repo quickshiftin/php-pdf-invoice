@@ -23,10 +23,23 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
         $oInvoicePdf->setItalicFontPath(__DIR__ . '/../assets/Arial Italic.ttf');
 
         // Set Color
-        $oInvoicePdf->setTitleBgFillColor(new \Zend_Pdf_Color_Html('gold'));
-        $oInvoicePdf->setTitleFontColor(new \Zend_Pdf_Color_Html('gray'));
-        $oInvoicePdf->setBodyBgFillColor(new \Zend_Pdf_Color_Html('turquoise'));
+        $red    = '#d53f27';
+        $yellow = '#e8e653';
+
+        // Title section of invoice
+        // Background color for title section of invoice, the default is white
+        $oInvoicePdf->setTitleBgFillColor(new \Zend_Pdf_Color_Html($yellow));
+        $oInvoicePdf->setTitleFontColor(new \Zend_Pdf_Color_Html('black'));
+
+        // Header sections of invoice
+        $oInvoicePdf->setHeaderBgFillColor(new \Zend_Pdf_Color_Html($red));
+        $oInvoicePdf->setBodyHeaderFontColor(new \Zend_Pdf_Color_Html('white'));
+
+        // Body section of invoice
         $oInvoicePdf->setBodyFontColor(new \Zend_Pdf_Color_Html('black'));
+
+        // Line color of invoice
+        $oInvoicePdf->setLineColor(new \Zend_Pdf_Color_Grayscale(0));
 
         // Configure logo
         $oInvoicePdf->setLogoPath(__DIR__ . '/../assets/fake-logo.jpg');
