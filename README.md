@@ -142,7 +142,7 @@ class MyOrder implements Order
 Since these are `interface`s, you can create a new class that wraps your existing OrderItem objects. If there are no name collisions you could also consider implementing directly on your existing OrderItem class.
 
 
-### Building PDFs
+### Building & Styling your Invoice PDFs
 This system uses [`Zend_Pdf`](https://framework.zend.com/manual/1.10/en/zend.pdf.html) (from ZF1) under the hood. The package provides `Quickshiftin\Pdf\Invoice\Factory` which is a wrapper for instantiating classes from `Zend_Pdf`. You'll use these objects to customize the appearance of your PDFs.
 
 We also assume you have an instance of an order object which implements `Quickshiftin\Pdf\Invoice\Spec\Order` as described above that is stored in a variable called `$myOrder`.
