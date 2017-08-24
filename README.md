@@ -153,7 +153,7 @@ use Quickshiftin\Pdf\Invoice as PdfInvoice;
 use Quickshiftin\Pdf\Invoice\Factory as InvoiceFactory;
 
 $oInvoiceFactory = new InvoiceFactory();
-$oInvoicePdf     = new Invoice();
+$oInvoicePdf     = new PdfInvoice();
 
 // Configure fonts - just put ttf font files somewhere your project can access them
 $oInvoicePdf->setRegularFontPath(__DIR__ . '/../assets/Arial.ttf');
