@@ -149,7 +149,7 @@ This system uses [`Zend_Pdf`](https://framework.zend.com/manual/1.10/en/zend.pdf
 We also assume you have an instance of an order object which implements `Quickshiftin\Pdf\Invoice\Spec\Order` as described above that is stored in a variable called `$myOrder`.
 
 ```php
-use Quickshiftin\Pdf\Invoice as PdfInvoice;
+use Quickshiftin\Pdf\Invoice\Invoice as PdfInvoice;
 use Quickshiftin\Pdf\Invoice\Factory as InvoiceFactory;
 
 $oInvoiceFactory = new InvoiceFactory();
