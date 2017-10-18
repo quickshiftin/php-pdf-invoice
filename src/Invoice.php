@@ -307,9 +307,7 @@ class Invoice implements \ArrayAccess
      */
     private function widthForStringUsingFontSize($string, $font, $fontSize)
     {
-        $drawingString = '"libiconv"' == ICONV_IMPL ?
-            iconv('UTF-8', 'UTF-16BE//IGNORE', $string) :
-            @iconv('UTF-8', 'UTF-16BE', $string);
+        $drawingString = mb_convert_encoding($string, 'UTF-16BE', 'UTF-8');
 
         $characters = array();
         for ($i = 0; $i < strlen($drawingString); $i++) {

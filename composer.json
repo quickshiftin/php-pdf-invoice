@@ -2,7 +2,7 @@
     "name": "quickshiftin/php-pdf-invoice",
     "description": "Generate PDF files for your application's invoices with PHP",
     "type": "library",
-    "version": "1.8.0",
+    "version": "1.9.0",
     "require": {
         "bombayworks/zendframework1": "1.*",
         "phpunit/phpunit": "4.8.35"

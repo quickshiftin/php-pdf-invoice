@@ -10,6 +10,20 @@ use \Zend_Pdf_Color_Html;
 
 class Factory
 {
+    private static $_bIconvInitialized = false;
+
+    // Initialize iconv settings
+    // https://www.sonassi.com/blog/knowledge-base/magento-wrong-charset-conversion-from-utf-16be-to-utf-8-is-not-allowed
+    public function __construct()
+    {
+        if(!self::$_bIconvInitialized) {
+            iconv_set_encoding('internal_encoding', 'UTF-8');
+            iconv_set_encoding('output_encoding', 'ISO-8859-1');
+
+            self::$_bIconvInitialized = true;
+        }
+    }
+
     public function createStringHelper()
     {
         return new StringHelper();

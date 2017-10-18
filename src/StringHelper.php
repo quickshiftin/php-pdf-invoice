@@ -264,8 +264,7 @@ class StringHelper
      */
     public function cleanString($string)
     {
-        return '"libiconv"' == ICONV_IMPL ?
-            iconv(self::ICONV_CHARSET, self::ICONV_CHARSET . '//IGNORE', $string) : $string;
+        return mb_convert_encoding($string, 'UTF-16BE', self::ICONV_CHARSET);
     }
 
     /**
