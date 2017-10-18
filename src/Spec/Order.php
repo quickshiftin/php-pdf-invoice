@@ -70,5 +70,11 @@ interface Order
      * Get the date of the sale
      * @return DateTime
      */
-    public function getSaleDate();
+    public function getSaleDate($sFormat);
+
+    /**
+     * Optional note to go at the bottom of the PDF.
+     * @return string
+     */
+    public function getOrderNote();
 }

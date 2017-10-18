@@ -39,7 +39,7 @@ use Zend_Pdf_Style;
  *   . Colors for font, background etc
  *   . Font configuration
  */
-class Invoice
+class Invoice implements \ArrayAccess
 {
     /**
      * Y coordinate
@@ -94,6 +94,36 @@ class Invoice
         $_aFontPaths = [],
         $_oFactory;
 
+    private
+        $_sOrderText                  = 'Order # ',
+        $_sOrderDateText              = 'Order Date: ',
+        $_sOrderDateFormat            = 'M jS Y g:i a',
+        $_sSoldToText                 = 'Sold to',
+        $_sShipToText                 = 'Ship to',
+        $_sPaymentMethodText          = 'Payment Method',
+        $_sShippingMethodText         = 'Shipping Method',
+        $_sProductColumnText          = 'Products',
+        $_sSkuColumnText              = 'SKU',
+        $_sPriceColumnText            = 'Price',
+        $_sQtyColumnText              = 'Qty',
+        $_sTaxColumnText              = 'Tax',
+        $_sSubTotalColumnText         = 'Subtotal',
+        $_sSubTotalText               = 'Subtotal',
+        $_sShippingHandlingText       = 'Shipping & Handling',
+        $_sGrandTotalExcludingTaxText = 'Grand Total (Excl. Tax)',
+        $_sTaxText                    = 'Tax',
+        $_sGrandTotalIncludingTaxText = 'Grand Total (Incl. Tax)',
+        $_bShowSoldTo                 = true,
+        $_bShowTaxColumn              = true,
+        $_bShowPriceColumn            = true,
+        $_bShowSubTotalColumn         = true,
+        $_bShowSubTotal               = true,
+        $_bShowShippingHandling       = true,
+        $_bShowGrandTotalExcludingTax = true,
+        $_bShowTax                    = true,
+        $_bShowGrandTotalIncludingTax = true,
+        $_bShowTotalShippingCharges   = true;
+
     public function __construct(Factory $oFactory=null)
     {
         if(!$oFactory) {
@@ -102,6 +132,68 @@ class Invoice
 
         $this->_oFactory      = $oFactory;
         $this->_oStringHelper = $oFactory->createStringHelper();
+    }
+
+    private $_sOffsetType = null;
+    public function offsetExists($offset)
+    {
+        $sTextKey = '_s' . ucfirst($offset);
+        $sBoolKey = '_b' . ucfirst($offset);
+
+        if(isset($this->$sTextKey)) {
+            $this->_sOffsetType = 'text';
+            return true;
+        }
+
+        if(isset($this->$sBoolKey)) {
+            $this->_sOffsetType = 'bool';
+            return true;
+        }
+
+        return false;
+    }
+
+    public function offsetGet($offset)
+    {
+        if(!$this->offsetExists($offset)) {
+            return null;
+        }
+
+        $sKey
+            = $this->_sOffsetType == 'text'
+            ? '_s' . ucfirst($offset)
+            : '_b' . ucfirst($offset);
+
+        return $this->$sKey;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if(!$this->offsetExists($offset)) {
+            return null;
+        }
+
+        $sKey
+            = $this->_sOffsetType == 'text'
+            ? '_s' . ucfirst($offset)
+            : '_b' . ucfirst($offset);
+
+        $this->$sKey = $value;
+    }
+
+    public function offsetUnset($offset)
+    {
+        if(!$this->offsetExists($offset)) {
+            return null;
+        }
+
+        if($this->_sOffsetType == 'text') {
+            $sKey = '_s' . ucfirst($offset);
+            $this->$sKey = '';
+        } else {
+            $sKey = '_b' . ucfirst($offset);
+            $this->$sKey = true;
+        }
     }
 
     public function setRegularFontPath($sPath) { $this->_setFontPath('regular', $sPath); }
@@ -353,15 +445,31 @@ class Invoice
 
     private function _buildTotalsArray()
     {
-        return [
-            $this->_buildTotalsArrayPair('Subtotal', $this->_oOrder->getPriceBeforeShippingNoTax()),
-            $this->_buildTotalsArrayPair('Shipping & Handling', $this->_oOrder->getCustomerShipCharge()),
-            $this->_buildTotalsArrayPair(
-                'Grand Total (Excl. Tax)',
-                $this->_oOrder->getPriceBeforeShippingNotax() + $this->_oOrder->getCustomerShipCharge()),
-            $this->_buildTotalsArrayPair('Tax', $this->_oOrder->getSalesTaxAmount()),
-            $this->_buildTotalsArrayPair('Grand Total (Incl. Tax)', $this->_oOrder->getTotalCost())
-        ];
+        $aTotals = [];
+
+        if($this->_bShowSubTotal) {
+            $aTotals[] = $this->_buildTotalsArrayPair($this->_sSubTotalText, $this->_oOrder->getPriceBeforeShippingNoTax());
+        }
+
+        if($this->_bShowShippingHandling) {
+            $aTotals[] = $this->_buildTotalsArrayPair($this->_sShippingHandlingText, $this->_oOrder->getCustomerShipCharge());
+        }
+
+        if($this->_bShowGrandTotalExcludingTax) {
+            $aTotals[] = $this->_buildTotalsArrayPair(
+                $this->_sGrandTotalExcludingTaxText,
+                $this->_oOrder->getPriceBeforeShippingNotax() + $this->_oOrder->getCustomerShipCharge());
+        }
+
+        if($this->_bShowTax) {
+            $aTotals[] = $this->_buildTotalsArrayPair($this->_sTaxText, $this->_oOrder->getSalesTaxAmount());
+        }
+
+        if($this->_bShowGrandTotalIncludingTax) {
+            $aTotals[] = $this->_buildTotalsArrayPair($this->_sGrandTotalIncludingTaxText, $this->_oOrder->getTotalCost());
+        }
+
+        return $aTotals;
     }
 
     /**
@@ -382,6 +490,17 @@ class Invoice
         $oPage = $this->_drawLineBlocks($oPage, [$lineBlock]);
 
         return $oPage;
+    }
+
+    private function insertNote(Zend_Pdf_Page $oPage, OrderSpec $oOrder)
+    {
+        $sNote = $oOrder->getOrderNote();
+
+        if(empty($sNote)) {
+            return;
+        }
+
+        $oPage->drawText($sNote, 35, $this->y, 'UTF-8');
     }
 
     /**
@@ -405,10 +524,10 @@ class Invoice
         $oPage->setFillColor($this->getTitleFontColor());
         $this->_setFontRegular($oPage, 10);
         
-        $oPage->drawText('Order # ' . $this->_oOrder->getOrderId(), 35, ($top -= 15), 'UTF-8');
+        $oPage->drawText($this->_sOrderText . $this->_oOrder->getOrderId(), 35, ($top -= 15), 'UTF-8');
 
         $oPage->drawText(
-            'Order Date: ' . $this->_oOrder->getSaleDate('M jS Y g:i a'), 
+            $this->_sOrderDateText . $this->_oOrder->getSaleDate($this->_sOrderDateFormat), 
             35, ($top -= 15), 'UTF-8'
         );
 
@@ -438,9 +557,11 @@ class Invoice
         //Shipping To and Sold To Text Color
         $oPage->setFillColor($this->getBodyHeaderFontColor());
         $this->_setFontBold($oPage, 12);
-        $oPage->drawText('Sold to', 35, ($top - 15), 'UTF-8');
+        $oPage->drawText($this->_sSoldToText, 35, ($top - 15), 'UTF-8');
 
-        $oPage->drawText('Ship to', 285, ($top - 15), 'UTF-8');
+        if($this->_bShowSoldTo) {
+            $oPage->drawText($this->_sShipToText, 285, ($top - 15), 'UTF-8');
+        }
 
         $addressesHeight = $this->_calcAddressHeight($billingAddress);
         $addressesHeight = max($addressesHeight, $this->_calcAddressHeight($shippingAddress));
@@ -449,6 +570,7 @@ class Invoice
         $oPage->setFillColor($this->_oFactory->createColorGrayscale(1));
 
         $oPage->drawRectangle(25, ($top - 25), 570, $top - 33 - $addressesHeight);
+
 
         // Shipping and Billing Address text
         $oPage->setFillColor($this->getBodyFontColor());
@@ -482,11 +604,14 @@ class Invoice
                     $text[] = $_value;
                 }
                 foreach ($text as $part) {
-                    $oPage->drawText(strip_tags(ltrim($part)), 285, $this->y, 'UTF-8');
+                    if($this->_bShowSoldTo) {
+                        $oPage->drawText(strip_tags(ltrim($part)), 285, $this->y, 'UTF-8');
+                    }
                     $this->y -= 15;
                 }
             }
         }
+
 
         $addressesEndY = min($addressesEndY, $this->y);
         $this->y = $addressesEndY;
@@ -501,8 +626,8 @@ class Invoice
         $this->y -= 15;
         $this->_setFontBold($oPage, 12);
         $oPage->setFillColor($this->getBodyHeaderFontColor());
-        $oPage->drawText('Payment Method', 35, $this->y, 'UTF-8');
-        $oPage->drawText('Shipping Method', 285, $this->y , 'UTF-8');
+        $oPage->drawText($this->_sPaymentMethodText, 35, $this->y, 'UTF-8');
+        $oPage->drawText($this->_sShippingMethodText, 285, $this->y , 'UTF-8');
 
         $this->y -=10;
         $oPage->setFillColor($this->getHeaderBgFillColor());
@@ -540,7 +665,9 @@ class Invoice
             "(" . 'Total Shipping Charges' . " " .
             $this->_renderPrice($this->_oOrder->getCustomerShipCharge()) . ")";
 
-        $oPage->drawText($totalShippingChargesText, 285, $yShipments - $topMargin, 'UTF-8');
+        if($this->_bShowTotalShippingCharges) {
+            $oPage->drawText($totalShippingChargesText, 285, $yShipments - $topMargin, 'UTF-8');
+        }
         $yShipments -= $topMargin + 10;
 
         $yShipments -= $topMargin - 5;
@@ -584,39 +711,47 @@ class Invoice
 
         //columns headers
         $lines[0][] = [
-            'text' => 'Products',
+            'text' => $this->_sProductColumnText,
             'feed' => 35
         ];
 
         $lines[0][] = [
-            'text'  => 'SKU',
+            'text'  => $this->_sSkuColumnText,
             'feed'  => 220,
             'align' => 'right'
         ];
 
+
         $lines[0][] = [
-            'text'  => 'Qty',
+            'text'  => $this->_sQtyColumnText,
             'feed'  => 435,
             'align' => 'right'
         ];
 
-        $lines[0][] = [
-            'text'  => 'Price',
-            'feed'  => 360,
-            'align' => 'right'
-        ];
 
-        $lines[0][] = [
-            'text'  => 'Tax',
-            'feed'  => 495,
-            'align' => 'right'
-        ];
+        if($this->_bShowPriceColumn) {
+            $lines[0][] = [
+                'text'  => $this->_sPriceColumnText,
+                'feed'  => 360,
+                'align' => 'right'
+            ];
+        }
 
-        $lines[0][] = [
-            'text'  => 'Subtotal',
-            'feed'  => 565,
-            'align' => 'right'
-        ];
+        if($this->_bShowTaxColumn) {
+            $lines[0][] = [
+                'text'  => $this->_sTaxColumnText,
+                'feed'  => 495,
+                'align' => 'right'
+            ];
+        }
+
+        if($this->_bShowSubTotalColumn) {
+            $lines[0][] = [
+                'text'  => $this->_sSubTotalColumnText,
+                'feed'  => 565,
+                'align' => 'right'
+            ];
+        }
 
         $lineBlock = [
             'lines'  => $lines,
@@ -650,7 +785,6 @@ class Invoice
         $oPage = $this->newPage();
 
         // Add image
-        // TODO Get the packing slip image off the ClientApp
         $this->insertLogo($oPage);
 
         // Add head
@@ -668,8 +802,11 @@ class Invoice
 //            $oPage = end($this->_pdf->pages);
         }
 
-        /* Add totals */
+        // Add totals
         $this->insertTotals($oPage, $oOrder);
+
+        // Add optional note
+        $this->insertNote($oPage, $oOrder);
 
         return $this->_pdf;
     }
@@ -731,28 +868,34 @@ class Invoice
         $feedSubtotal = $feedPrice + 170;
 
         // draw Price
-        $lines[$i][] = [
-            'text'  => $this->_renderPrice($oOrderItem->getPricePerUnit()),
-            'feed'  => $feedPrice,
-            'font'  => 'regular',
-            'align' => 'right'
-        ];
+        if($this->_bShowPriceColumn) {
+            $lines[$i][] = [
+                'text'  => $this->_renderPrice($oOrderItem->getPricePerUnit()),
+                'feed'  => $feedPrice,
+                'font'  => 'regular',
+                'align' => 'right'
+            ];
+        }
 
         // draw Subtotal
-        $lines[$i][] = [
-            'text'  => $this->_renderPrice($oOrderItem->getPrice(true)),
-            'feed'  => $feedSubtotal,
-            'font'  => 'regular',
-            'align' => 'right'
-        ];
+        if($this->_bShowSubTotalColumn) {
+            $lines[$i][] = [
+                'text'  => $this->_renderPrice($oOrderItem->getPrice(true)),
+                'feed'  => $feedSubtotal,
+                'font'  => 'regular',
+                'align' => 'right'
+            ];
+        }
 
         // draw Tax
-        $lines[0][] = [
-            'text'  => $this->_renderPrice($oOrderItem->getSalesTaxAmount()),
-            'feed'  => 495,
-            'font'  => 'regular',
-            'align' => 'right'
-        ];
+        if($this->_bShowTaxColumn) {
+            $lines[0][] = [
+                'text'  => $this->_renderPrice($oOrderItem->getSalesTaxAmount()),
+                'feed'  => 495,
+                'font'  => 'regular',
+                'align' => 'right'
+            ];
+        }
 
         $lineBlock = [
             'lines'  => $lines,
