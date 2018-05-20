@@ -198,12 +198,13 @@ class Invoice implements \ArrayAccess
         }
 
         if($this->_sOffsetType == 'text') {
-            $sKey = '_s' . ucfirst($offset);
+            $sKey = $this->_sOffset;
             $this->$sKey = '';
         } else {
-            $sKey = '_b' . ucfirst($offset);
+            $sKey = $this->_sOffset;
             $this->$sKey = true;
         }
+        // XXX Support to reset int values to original...
     }
 
     public function setRegularFontPath($sPath) { $this->_setFontPath('regular', $sPath); }
