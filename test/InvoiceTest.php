@@ -48,6 +48,8 @@ class InvoiceTest extends \PHPUnit_Framework_TestCase
         $oPdf = $oInvoicePdf->getPdf($this->_oOrderMock);
         
         $pdf = $oPdf->render();
+        
+        file_put_contents(__DIR__ . '/test.pdf', $pdf);
 
         $this->assertTrue(!empty($pdf));
     }

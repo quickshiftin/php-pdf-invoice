@@ -147,7 +147,7 @@ class Invoice implements \ArrayAccess
     {
         $sTextKey = '_s' . ucfirst($offset);
         $sBoolKey = '_b' . ucfirst($offset);
-        $iIntKey  = '_i' . ucfirst($offset);
+        $sIntKey  = '_i' . ucfirst($offset);
 
         if(isset($this->$sTextKey)) {
             $this->_sOffsetType = 'text';
@@ -161,7 +161,7 @@ class Invoice implements \ArrayAccess
             return true;
         }
         
-        if(isset($this->$iIntKey)) {
+        if(isset($this->$sIntKey)) {
             $this->_sOffsetType = 'int';
             $this->_sOffset     = $sIntKey;
             return true;
