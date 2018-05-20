@@ -92,7 +92,9 @@ class Invoice implements \ArrayAccess
         $_BodyHeaderFontColor,
         $_TitleFontColor,
         $_aFontPaths = [],
-        $_oFactory;
+        $_oFactory,
+        $_sOffset,
+        $_sOffsetType;
 
     private
         $_sOrderText                  = 'Order # ',
@@ -122,7 +124,14 @@ class Invoice implements \ArrayAccess
         $_bShowGrandTotalExcludingTax = true,
         $_bShowTax                    = true,
         $_bShowGrandTotalIncludingTax = true,
-        $_bShowTotalShippingCharges   = true;
+        $_bShowTotalShippingCharges   = true,
+        $_iTotalsArrayFontSize        = 10,
+        $_iLineItemProductWordwrap    = 35,
+        $_iLineItemSkuWordwrap        = 17,
+        $_iLineItemSkuFeed            = 290,
+        $_iLineItemQtyFeed            = 435,
+        $_iHeaderSkuFeed              = 220,
+        $_iHeaderQtyFeed              = 435;
 
     public function __construct(Factory $oFactory=null)
     {
@@ -134,19 +143,27 @@ class Invoice implements \ArrayAccess
         $this->_oStringHelper = $oFactory->createStringHelper();
     }
 
-    private $_sOffsetType = null;
     public function offsetExists($offset)
     {
         $sTextKey = '_s' . ucfirst($offset);
         $sBoolKey = '_b' . ucfirst($offset);
+        $iIntKey  = '_i' . ucfirst($offset);
 
         if(isset($this->$sTextKey)) {
             $this->_sOffsetType = 'text';
+            $this->_sOffset     = $sTextKey;
             return true;
         }
 
         if(isset($this->$sBoolKey)) {
             $this->_sOffsetType = 'bool';
+            $this->_sOffset     = $sBoolKey;
+            return true;
+        }
+        
+        if(isset($this->$iIntKey)) {
+            $this->_sOffsetType = 'int';
+            $this->_sOffset     = $sIntKey;
             return true;
         }
 
@@ -159,10 +176,7 @@ class Invoice implements \ArrayAccess
             return null;
         }
 
-        $sKey
-            = $this->_sOffsetType == 'text'
-            ? '_s' . ucfirst($offset)
-            : '_b' . ucfirst($offset);
+        $sKey = $this->_sOffset;
 
         return $this->$sKey;
     }
@@ -173,11 +187,7 @@ class Invoice implements \ArrayAccess
             return null;
         }
 
-        $sKey
-            = $this->_sOffsetType == 'text'
-            ? '_s' . ucfirst($offset)
-            : '_b' . ucfirst($offset);
-
+        $sKey        = $this->_sOffset;
         $this->$sKey = $value;
     }
 
@@ -430,8 +440,11 @@ class Invoice implements \ArrayAccess
     private function _buildTotalsArrayPart($sText, $iFeed)
     {
         return [
-            'text'  => $sText,  'font_size' => 10,
-            'align' => 'right', 'feed'      => $iFeed , 'font'=> 'bold'
+            'text'      => $sText,
+            'font_size' => $this->_iTotalsArrayFontSize,
+            'align'     => 'right',
+            'feed'      => $iFeed ,
+            'font'      => 'bold'
         ];
     }
 
@@ -499,6 +512,8 @@ class Invoice implements \ArrayAccess
         if(empty($sNote)) {
             return;
         }
+
+        $this->y -= 20;
 
         $oPage->drawText($sNote, 35, $this->y, 'UTF-8');
     }
@@ -717,17 +732,15 @@ class Invoice implements \ArrayAccess
 
         $lines[0][] = [
             'text'  => $this->_sSkuColumnText,
-            'feed'  => 220,
+            'feed'  => $this->_iHeaderSkuFeed,
             'align' => 'right'
         ];
-
 
         $lines[0][] = [
             'text'  => $this->_sQtyColumnText,
-            'feed'  => 435,
+            'feed'  => $this->_iHeaderQtyFeed,
             'align' => 'right'
         ];
-
 
         if($this->_bShowPriceColumn) {
             $lines[0][] = [
@@ -838,31 +851,31 @@ class Invoice implements \ArrayAccess
     private function _drawLineItem(Zend_Pdf_Page $oPage, OrderItemSpec $oOrderItem)
     {
         $lines  = [];
-
+        
         // draw Product name
         $lines[0] = [[
-            'text' => $this->_oStringHelper->str_split($oOrderItem->getName(), 35, true, true),
+            'text' => $this->_oStringHelper->str_split($oOrderItem->getName(), $this->_iLineItemProductWordwrap, true, true),
             'feed' => 35,
         ]];
 
         // draw SKU
         $lines[0][] = [
-            'text'  => $this->_oStringHelper->str_split($oOrderItem->getSku(), 17),
-            'feed'  => 290,
+            'text'  => $this->_oStringHelper->str_split($oOrderItem->getSku(), $this->_iLineItemSkuWordwrap),
+            'feed'  => $this->_iLineItemSkuFeed,
             'align' => 'right'
         ];
 
         // draw QTY
         $lines[0][] = [
             'text'  => $oOrderItem->getQuantity() * 1,
-            'feed'  => 435,
+            'feed'  => $this->_iLineItemQtyFeed,
             'align' => 'right'
         ];
 
         // draw item Prices
-        //--------------------------------------------------------------------------------=
-        // XXX I needs to be defined by how many times this function is called?
-        //--------------------------------------------------------------------------------=
+        //--------------------------------------------------------------------------------
+        // XXX $i needs to be defined by how many times this function is called ???
+        //--------------------------------------------------------------------------------
         $i            = 0;
         $feedPrice    = 395;
         $feedSubtotal = $feedPrice + 170;
