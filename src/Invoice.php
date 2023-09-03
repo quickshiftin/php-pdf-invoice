@@ -701,7 +701,8 @@ class Invoice implements \ArrayAccess
 
     private function _renderPrice($fPrice)
     {
-        return '$' . money_format('%.2n', $fPrice);
+        setlocale(LC_MONETARY, 'en_US');
+        return '$' . number_format($fPrice, 2);
     }
 
     /**
